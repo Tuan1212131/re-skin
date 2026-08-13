@@ -106,16 +106,7 @@ public class SkinActivity extends AppCompatActivity {
             int face = parseId(faceInput, "脸ID");
             int body = parseId(bodyInput, "身ID");
             if (head <= 0 || face <= 0 || body <= 0) { Toast.makeText(this, "请输入有效的头/脸/身ID", Toast.LENGTH_SHORT).show(); return; }
-            long a = ipc.findSkinBase(head, face, body);
-            if (a != 0) {
-                baseA = a;
-                locateRetry = 0;
-                addrInput.setText(String.format("%08X", a));
-                addrInfo.setText("自动定位: A=" + Long.toHexString(a));
-                Toast.makeText(this, "已定位(前导/脸身验证)", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // 显示所有"前导特征匹配"候选, 用户选择(多角色/缓存有相同特征, 需选当前角色的)
+            // ★不再直接用 findSkinBase 第一个(可能非当前角色), 总是收集所有前导匹配候选供选择
             int count = ipc.scanValue(head);
             java.util.List<Long> candidates = new java.util.ArrayList<>();
             for (int i = 0; i < count; i++) {

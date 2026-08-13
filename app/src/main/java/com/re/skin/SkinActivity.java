@@ -23,7 +23,7 @@ public class SkinActivity extends AppCompatActivity {
     private TextView addrInfo;
     private SkinData.Employee employee;
     private long baseA;
-    private EditText headInput, faceInput, bodyInput;
+    private EditText headInput;
     private int locateRetry = 0;
 
     @Override
@@ -43,8 +43,6 @@ public class SkinActivity extends AppCompatActivity {
         addrInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         addrInfo = findViewById(R.id.addr_info);
         headInput = findViewById(R.id.head_input);
-        faceInput = findViewById(R.id.face_input);
-        bodyInput = findViewById(R.id.body_input);
 
         Button bindBtn = findViewById(R.id.btn_attach);
         bindBtn.setOnClickListener(v -> doAttach());

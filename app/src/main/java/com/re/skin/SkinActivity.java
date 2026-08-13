@@ -145,13 +145,17 @@ public class SkinActivity extends AppCompatActivity {
         String[] items = new String[candidates.size()];
         for (int i = 0; i < candidates.size(); i++) {
             long c = candidates.get(i);
-            long m4 = 0, a8 = 0, a14 = 0;
+            long mC=0, m8=0, m4=0, hd=0, f8=0, b14=0;
             try {
-                m4 = ipc.readInt(c - 4);
-                a8 = ipc.readInt(c + 8);
-                a14 = ipc.readInt(c + 0x14);
+                mC = ipc.readInt(c - 0xC);   // 前导16
+                m8 = ipc.readInt(c - 8);     // 前导0
+                m4 = ipc.readInt(c - 4);     // 前导头ID-1
+                hd = ipc.readInt(c);         // 头
+                f8 = ipc.readInt(c + 8);     // 脸(辅助)
+                b14 = ipc.readInt(c + 0x14); // 身(辅助)
             } catch (RemoteException ignored) {}
-            items[i] = String.format("%08X\n前导%d 脸=%d 身=%d", c, m4, a8, a14);
+            items[i] = String.format("%08X\n前导[%d][%d][%d] 头=%d 脸=%d 身=%d",
+                    c, mC, m8, m4, hd, f8, b14);
         }
         new android.app.AlertDialog.Builder(this)
                 .setTitle("找到" + candidates.size() + "个匹配, 选当前角色的")

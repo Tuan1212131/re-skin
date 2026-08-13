@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp">
+
+    <TextView android:id="@+id/skin_title" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="18sp" android:textStyle="bold" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:layout_marginTop="8dp">
+        <EditText android:id="@+id/addr_input" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:hint="地址A(hex) 或 当前头ID" />
+        <Button android:id="@+id/btn_attach" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="绑定游戏" />
+        <Button android:id="@+id/btn_scan" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="搜索地址" />
+    </LinearLayout>
+
+    <TextView android:id="@+id/addr_info" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="提示: 绑定游戏后, 输入当前头ID点搜索自动定位A; 或手动输入hex地址A"
+        android:textSize="12sp" android:textColor="#888888" android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="选择皮肤 (点击应用):" android:textSize="14sp" />
+    <ListView android:id="@+id/skin_list" android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

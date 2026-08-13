@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="超自然行动组 皮肤工具" android:textSize="18sp" android:textStyle="bold" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="选员工 → 选皮肤 → 定位地址A → 应用 (头=A 脸=A+4 身=A+8)"
+        android:textSize="12sp" android:textColor="#888888" android:layout_marginBottom="12dp" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText android:id="@+id/pkg_input" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="com.pi.czrxdfirst" android:hint="游戏包名" />
+        <Button android:id="@+id/btn_bind" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="连接" />
+    </LinearLayout>
+
+    <TextView android:id="@+id/status_text" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="root服务: 未连接" android:textColor="#E94560" android:layout_marginTop="6dp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="选择员工:" android:textSize="14sp" />
+    <ListView android:id="@+id/emp_list" android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

@@ -23,6 +23,7 @@ public class SkinActivity extends AppCompatActivity {
     private TextView addrInfo;
     private SkinData.Employee employee;
     private long baseA;
+    private EditText headInput, faceInput, bodyInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +41,18 @@ public class SkinActivity extends AppCompatActivity {
         addrInput = findViewById(R.id.addr_input);
         addrInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         addrInfo = findViewById(R.id.addr_info);
+        headInput = findViewById(R.id.head_input);
+        faceInput = findViewById(R.id.face_input);
+        bodyInput = findViewById(R.id.body_input);
 
         Button bindBtn = findViewById(R.id.btn_attach);
         bindBtn.setOnClickListener(v -> doAttach());
 
         Button scanBtn = findViewById(R.id.btn_scan);
         scanBtn.setOnClickListener(v -> doScan());
+
+        Button autoBtn = findViewById(R.id.btn_auto);
+        autoBtn.setOnClickListener(v -> doAutoLocate());
 
         // 皮肤列表
         ListView list = findViewById(R.id.skin_list);
@@ -88,6 +95,35 @@ public class SkinActivity extends AppCompatActivity {
         } catch (RemoteException e) {
             addrInfo.setText("搜索失败: " + e.getMessage());
         }
+    }
+
+    private void doAutoLocate() {
+        IMutual ipc = IPCService.getIPC();
+        if (ipc == null) { Toast.makeText(this, "root服务未连接", Toast.LENGTH_SHORT).show(); return; }
+        try {
+            int head = parseId(headInput, "头ID");
+            int face = parseId(faceInput, "脸ID");
+            int body = parseId(bodyInput, "身ID");
+            if (head <= 0 || face <= 0 || body <= 0) { Toast.makeText(this, "请输入有效的头/脸/身ID", Toast.LENGTH_SHORT).show(); return; }
+            long a = ipc.findSkinBase(head, face, body);
+            if (a != 0) {
+                baseA = a;
+                addrInput.setText(String.format("%08X", a));
+                addrInfo.setText("自动定位成功: A=" + Long.toHexString(a) + " (结构验证通过)");
+                Toast.makeText(this, "自动定位成功", Toast.LENGTH_SHORT).show();
+            } else {
+                addrInfo.setText("自动定位失败: 未找到匹配。请确认已绑定游戏、ID正确、当前皮肤在游戏内");
+            }
+        } catch (RemoteException e) {
+            addrInfo.setText("自动定位异常: " + e.getMessage());
+        }
+    }
+
+    private int parseId(EditText et, String name) {
+        String s = et.getText().toString().trim();
+        if (s.isEmpty()) return 0;
+        try { return (int)Long.parseLong(s); }
+        catch (NumberFormatException e) { return 0; }
     }
 
     private void applySkin(SkinData.Skin skin) {

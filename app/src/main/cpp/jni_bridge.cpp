@@ -45,6 +45,11 @@ Java_com_re_skin_NativeBridge_readInt(JNIEnv*, jclass, jlong addr) {
     return 0;
 }
 
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_re_skin_NativeBridge_findSkinBase(JNIEnv*, jclass, jint head, jint face, jint body) {
+    return (jlong)skin::findSkinBase((int)head, (int)face, (int)body);
+}
+
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM*, void*) {
     return JNI_VERSION_1_6;
 }

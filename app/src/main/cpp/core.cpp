@@ -140,4 +140,24 @@ bool applySkin(uintptr_t baseA, int head, int face, int body) {
     return ok;
 }
 
+// 自动定位装扮基址A: 搜头ID, 对每个候选验证 A+8=脸ID 且 A+0x14=身ID
+// 依据 RoleClothInfo 数组结构: 头=part[1], 脸=part[3], 身=part[6]
+uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
+    int count = scanValue(headId);
+    if (count <= 0) { LOGE("findSkinBase: 未找到头ID %d", headId); return 0; }
+    for (int i = 0; i < count; i++) {
+        uintptr_t addr = g_results[i];
+        int v8 = 0, v14 = 0;
+        if (memRead(addr + 8, &v8, 4) && memRead(addr + 0x14, &v14, 4)) {
+            if (v8 == faceId && v14 == bodyId) {
+                LOGI("findSkinBase: A=%p (head=%d face=%d body=%d)",
+                     (void*)addr, headId, v8, v14);
+                return addr;
+            }
+        }
+    }
+    LOGI("findSkinBase: 未找到匹配 (head=%d, 候选%d个)", headId, count);
+    return 0;
+}
+
 } // namespace skin

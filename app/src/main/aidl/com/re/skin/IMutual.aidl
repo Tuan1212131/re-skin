@@ -12,6 +12,8 @@ interface IMutual {
     boolean applySkin(long baseA, int head, int face, int body);
     /** 读4字节(验证) */
     long readInt(long addr);
+    /** 自动定位装扮基址A: 搜头ID+结构验证(脸A+8,身A+0x14) */
+    long findSkinBase(int headId, int faceId, int bodyId);
     /** 重新绑定(切换游戏) */
     void detach();
 }

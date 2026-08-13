@@ -19,6 +19,9 @@ public class AIDLService extends RootService {
                 return NativeBridge.applySkin(a, h, f, b);
             }
             @Override public long readInt(long addr) { return NativeBridge.readInt(addr); }
+            @Override public long findSkinBase(int h, int f, int b) {
+                return NativeBridge.findSkinBase(h, f, b);
+            }
             @Override public void detach() { NativeBridge.detach(); }
         };
     }

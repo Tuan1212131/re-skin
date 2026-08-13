@@ -112,7 +112,16 @@ public class SkinActivity extends AppCompatActivity {
                 addrInfo.setText("自动定位成功: A=" + Long.toHexString(a) + " (结构验证通过)");
                 Toast.makeText(this, "自动定位成功", Toast.LENGTH_SHORT).show();
             } else {
-                addrInfo.setText("自动定位失败: 未找到匹配。请确认已绑定游戏、ID正确、当前皮肤在游戏内");
+                // 失败: 显示候选列表(带 地址/脸值/身值), 供手动选择
+                int count = ipc.scanValue(head);
+                StringBuilder sb = new StringBuilder("未命中结构验证. 头ID候选" + count + "个(前15):\n");
+                for (int i = 0; i < Math.min(count, 15); i++) {
+                    long addr = ipc.getScanResult(i);
+                    long f8 = ipc.readInt(addr + 8);
+                    long f14 = ipc.readInt(addr + 0x14);
+                    sb.append(String.format("%08X 脸=%d 身=%d\n", addr, f8, f14));
+                }
+                addrInfo.setText(sb.toString());
             }
         } catch (RemoteException e) {
             addrInfo.setText("自动定位异常: " + e.getMessage());

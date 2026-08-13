@@ -172,15 +172,18 @@ uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
                 if (v == headId) {
                     found++;
                     uintptr_t cand = addr + i;
-                    int v8 = 0, v14 = 0;
-                    // 边搜边验证: A+8=脸 且 A+0x14=身
-                    if (memRead(cand + 8, &v8, 4) && memRead(cand + 0x14, &v14, 4)) {
-                        if (v8 == faceId && v14 == bodyId) {
-                            LOGI("findSkinBase: 命中 A=%p (face=%d body=%d, 候选%d)",
-                                 (void*)cand, v8, v14, found);
-                            fclose(f);
-                            return cand;
-                        }
+                    int v4=0, v8=0, v14=0;
+                    // 组合1(数组): 脸=A+8 身=A+0x14
+                    if (memRead(cand+8, &v8, 4) && memRead(cand+0x14, &v14, 4)
+                        && v8 == faceId && v14 == bodyId) {
+                        LOGI("findSkinBase: 命中(数组) A=%p", (void*)cand);
+                        fclose(f); return cand;
+                    }
+                    // 组合2(连续): 脸=A+4 身=A+8
+                    if (memRead(cand+4, &v4, 4) && memRead(cand+8, &v8, 4)
+                        && v4 == faceId && v8 == bodyId) {
+                        LOGI("findSkinBase: 命中(连续) A=%p", (void*)cand);
+                        fclose(f); return cand;
                     }
                 }
             }

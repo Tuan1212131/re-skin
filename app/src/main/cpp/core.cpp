@@ -140,10 +140,12 @@ bool applySkin(uintptr_t baseA, int head, int face, int body) {
     return ok;
 }
 
-// 自动定位装扮基址A: 【边扫描边验证】搜头ID, 命中即返(不等全扫描)
-// 结构: 头=A, 脸=A+8, 身=A+0x14 (RoleClothInfo part[1]/[3]/[6])
+// 自动定位装扮基址A: 【前导特征优先】边扫描边验证
+// 前导特征(固定): A-0xC=16(数量), A-8=0, A-4=headId-1(基础序列起点)
+// 脸/身会变(换皮后变化), 前导特征稳定 → 优先用前导验证
 uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
     if (g_memFd < 0) return 0;
+    int expectBase = headId - 1;   // 基础序列起点 = 头ID-1
     char mapPath[64];
     snprintf(mapPath, sizeof mapPath, "/proc/%ld/maps", g_pid);
     FILE* f = fopen(mapPath, "r");
@@ -172,17 +174,21 @@ uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
                 if (v == headId) {
                     found++;
                     uintptr_t cand = addr + i;
-                    int v4=0, v8=0, v14=0;
-                    // 组合1(数组): 脸=A+8 身=A+0x14
+                    int m4=0, m8=0, mC=0;
+                    // ★前导特征验证(可靠): A-4=headId-1, A-8=0, A-0xC=16
+                    if (memRead(cand-4,  &m4, 4) && memRead(cand-8,  &m8, 4)
+                        && memRead(cand-0xC, &mC, 4)) {
+                        if (m4 == expectBase && m8 == 0 && mC == 16) {
+                            LOGI("findSkinBase: 命中(前导特征) A=%p", (void*)cand);
+                            fclose(f);
+                            return cand;
+                        }
+                    }
+                    // 备选: 脸/身验证(数组 A+8/A+0x14)
+                    int v8=0, v14=0;
                     if (memRead(cand+8, &v8, 4) && memRead(cand+0x14, &v14, 4)
                         && v8 == faceId && v14 == bodyId) {
-                        LOGI("findSkinBase: 命中(数组) A=%p", (void*)cand);
-                        fclose(f); return cand;
-                    }
-                    // 组合2(连续): 脸=A+4 身=A+8
-                    if (memRead(cand+4, &v4, 4) && memRead(cand+8, &v8, 4)
-                        && v4 == faceId && v8 == bodyId) {
-                        LOGI("findSkinBase: 命中(连续) A=%p", (void*)cand);
+                        LOGI("findSkinBase: 命中(脸身) A=%p", (void*)cand);
                         fclose(f); return cand;
                     }
                 }
@@ -190,8 +196,8 @@ uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
         }
     }
     fclose(f);
-    LOGE("findSkinBase: 未命中, 头ID候选%d个 (head=%d face=%d body=%d)",
-         found, headId, faceId, bodyId);
+    LOGE("findSkinBase: 未命中, 头ID候选%d个 (head=%d expectBase=%d)",
+         found, headId, expectBase);
     return 0;
 }
 

@@ -101,10 +101,10 @@ public class SkinActivity extends AppCompatActivity {
             try { a = Long.parseLong(as, 16); }   // hex地址
             catch (NumberFormatException e) { Toast.makeText(this, "地址格式错(用hex)", Toast.LENGTH_SHORT).show(); return; }
 
-            // 头/脸/身: -1 = 读当前值
+            // 头/脸/身: -1 = 读当前值 (RoleClothInfo: 头=A, 脸=A+8, 身=A+0x14)
             int head = skin.hasHead() ? skin.head : (int)ipc.readInt(a);
-            int face = skin.hasFace() ? skin.face : (int)ipc.readInt(a + 4);
-            int body = skin.hasBody() ? skin.body : (int)ipc.readInt(a + 8);
+            int face = skin.hasFace() ? skin.face : (int)ipc.readInt(a + 8);
+            int body = skin.hasBody() ? skin.body : (int)ipc.readInt(a + 0x14);
 
             boolean ok = ipc.applySkin(a, head, face, body);
             Toast.makeText(this, (ok ? "已应用: " : "应用失败: ") + skin.name, Toast.LENGTH_LONG).show();

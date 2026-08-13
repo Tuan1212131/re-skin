@@ -127,12 +127,14 @@ uintptr_t getScanResult(int index) {
 
 int scanResultCount() { return g_resultCount; }
 
-// 应用皮肤: 写 A(头) A+4(脸) A+8(身)
+// 应用皮肤: 写 A(头) A+8(脸) A+0x14(身)
+// 依据 RoleClothInfo 数组结构实测:
+//   part[1]=头, part[3]=脸, part[6]=身 (int槽位, 非连续+4)
 bool applySkin(uintptr_t baseA, int head, int face, int body) {
     if (g_memFd < 0 || baseA == 0) return false;
-    bool ok = memWrite(baseA + 0, &head, 4)
-           && memWrite(baseA + 4, &face, 4)
-           && memWrite(baseA + 8, &body, 4);
+    bool ok = memWrite(baseA + 0,    &head, 4)   // 头
+           && memWrite(baseA + 8,    &face, 4)   // 脸
+           && memWrite(baseA + 0x14, &body, 4);  // 身
     LOGI("applySkin: A=%p head=%d face=%d body=%d -> %s",
          (void*)baseA, head, face, body, ok ? "OK" : "FAIL");
     return ok;

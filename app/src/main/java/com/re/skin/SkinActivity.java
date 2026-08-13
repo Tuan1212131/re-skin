@@ -103,9 +103,8 @@ public class SkinActivity extends AppCompatActivity {
         if (ipc == null) { Toast.makeText(this, "root服务未连接", Toast.LENGTH_SHORT).show(); return; }
         try {
             int head = parseId(headInput, "头ID");
-            int face = parseId(faceInput, "脸ID");
-            int body = parseId(bodyInput, "身ID");
-            if (head <= 0 || face <= 0 || body <= 0) { Toast.makeText(this, "请输入有效的头/脸/身ID", Toast.LENGTH_SHORT).show(); return; }
+            // ★自动定位只依赖头ID(前导特征16,0,头ID-1), 脸/身不参与
+            if (head <= 0) { Toast.makeText(this, "请输入当前角色头ID(如20000002)", Toast.LENGTH_SHORT).show(); return; }
             // ★不再直接用 findSkinBase 第一个(可能非当前角色), 总是收集所有前导匹配候选供选择
             int count = ipc.scanValue(head);
             java.util.List<Long> candidates = new java.util.ArrayList<>();

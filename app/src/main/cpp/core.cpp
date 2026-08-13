@@ -140,23 +140,55 @@ bool applySkin(uintptr_t baseA, int head, int face, int body) {
     return ok;
 }
 
-// 自动定位装扮基址A: 搜头ID, 对每个候选验证 A+8=脸ID 且 A+0x14=身ID
-// 依据 RoleClothInfo 数组结构: 头=part[1], 脸=part[3], 身=part[6]
+// 自动定位装扮基址A: 【边扫描边验证】搜头ID, 命中即返(不等全扫描)
+// 结构: 头=A, 脸=A+8, 身=A+0x14 (RoleClothInfo part[1]/[3]/[6])
 uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
-    int count = scanValue(headId);
-    if (count <= 0) { LOGE("findSkinBase: 未找到头ID %d", headId); return 0; }
-    for (int i = 0; i < count; i++) {
-        uintptr_t addr = g_results[i];
-        int v8 = 0, v14 = 0;
-        if (memRead(addr + 8, &v8, 4) && memRead(addr + 0x14, &v14, 4)) {
-            if (v8 == faceId && v14 == bodyId) {
-                LOGI("findSkinBase: A=%p (head=%d face=%d body=%d)",
-                     (void*)addr, headId, v8, v14);
-                return addr;
+    if (g_memFd < 0) return 0;
+    char mapPath[64];
+    snprintf(mapPath, sizeof mapPath, "/proc/%ld/maps", g_pid);
+    FILE* f = fopen(mapPath, "r");
+    if (!f) return 0;
+
+    char line[512];
+    unsigned char buf[4096];
+    int found = 0;
+
+    while (fgets(line, sizeof line, f)) {
+        unsigned long start, end;
+        char perms[8] = "";
+        if (sscanf(line, "%lx-%lx %7s", &start, &end, perms) != 3) continue;
+        if (!strchr(perms, 'r')) continue;
+        if (strstr(line, "vmem") || strstr(line, "vsyscall") || strstr(line, "/dev/")) continue;
+        // 跳过系统库, 保留 anon/heap (装扮数组所在)
+        if (strstr(line, "/system/") || strstr(line, "/apex/")
+            || strstr(line, "/vendor/") || strstr(line, ".so")) continue;
+
+        for (unsigned long addr = start; addr < end; addr += 4096) {
+            size_t len = (end - addr < 4096) ? (size_t)(end - addr) : 4096;
+            if (pread(g_memFd, buf, len, (off_t)addr) != (ssize_t)len) continue;
+            for (size_t i = 0; i + 4 <= len; i++) {
+                int v;
+                memcpy(&v, buf + i, 4);
+                if (v == headId) {
+                    found++;
+                    uintptr_t cand = addr + i;
+                    int v8 = 0, v14 = 0;
+                    // 边搜边验证: A+8=脸 且 A+0x14=身
+                    if (memRead(cand + 8, &v8, 4) && memRead(cand + 0x14, &v14, 4)) {
+                        if (v8 == faceId && v14 == bodyId) {
+                            LOGI("findSkinBase: 命中 A=%p (face=%d body=%d, 候选%d)",
+                                 (void*)cand, v8, v14, found);
+                            fclose(f);
+                            return cand;
+                        }
+                    }
+                }
             }
         }
     }
-    LOGI("findSkinBase: 未找到匹配 (head=%d, 候选%d个)", headId, count);
+    fclose(f);
+    LOGE("findSkinBase: 未命中, 头ID候选%d个 (head=%d face=%d body=%d)",
+         found, headId, faceId, bodyId);
     return 0;
 }
 

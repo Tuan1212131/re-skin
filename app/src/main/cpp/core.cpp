@@ -99,8 +99,9 @@ int scanValue(int value) {
         char perms[8] = "";
         if (sscanf(line, "%lx-%lx %7s", &start, &end, perms) != 3) continue;
         if (!strchr(perms, 'r')) continue;
-        if (strstr(line, "vmem") || strstr(line, "vsyscall") || strstr(line, "/dev/")) continue;
+        if (strstr(line, "vmem") || strstr(line, "vsyscall")) continue;
         if (strstr(line, "dalvik") || strstr(line, "jit") || strstr(line, "oat")) continue;
+        // 不跳 /dev/ 和 .so (避免误伤装扮数组所在区域)
         for (unsigned long addr = start; addr < end; addr += 4096) {
             size_t len = (end - addr < 4096) ? (size_t)(end - addr) : 4096;
             if (pread(g_memFd, buf, len, (off_t)addr) != (ssize_t)len) continue;
@@ -154,20 +155,24 @@ uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
     char line[512];
     unsigned char buf[4096];
     int found = 0;
+    long lines = 0, preadOk = 0, bytes = 0;
 
     while (fgets(line, sizeof line, f)) {
         unsigned long start, end;
         char perms[8] = "";
         if (sscanf(line, "%lx-%lx %7s", &start, &end, perms) != 3) continue;
         if (!strchr(perms, 'r')) continue;
-        if (strstr(line, "vmem") || strstr(line, "vsyscall") || strstr(line, "/dev/")) continue;
-        // 跳过系统库, 保留 anon/heap (装扮数组所在)
+        // 只跳明确的不可读/系统框架区。注意: 不跳 /dev/ 和 .so
+        // (装扮数组可能在 /dev/ashmem 或含.so路径的映射, 误跳导致0候选)
+        if (strstr(line, "vmem") || strstr(line, "vsyscall")) continue;
         if (strstr(line, "/system/") || strstr(line, "/apex/")
-            || strstr(line, "/vendor/") || strstr(line, ".so")) continue;
+            || strstr(line, "/vendor/")) continue;
 
+        lines++;
         for (unsigned long addr = start; addr < end; addr += 4096) {
             size_t len = (end - addr < 4096) ? (size_t)(end - addr) : 4096;
             if (pread(g_memFd, buf, len, (off_t)addr) != (ssize_t)len) continue;
+            preadOk++; bytes += len;
             for (size_t i = 0; i + 4 <= len; i++) {
                 int v;
                 memcpy(&v, buf + i, 4);
@@ -196,8 +201,8 @@ uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
         }
     }
     fclose(f);
-    LOGE("findSkinBase: 未命中, 头ID候选%d个 (head=%d expectBase=%d)",
-         found, headId, expectBase);
+    LOGE("findSkinBase: 未命中, 头ID候选%d个, 扫%ld行/%ldMB (head=%d)",
+         found, lines, bytes/1048576, headId);
     return 0;
 }
 

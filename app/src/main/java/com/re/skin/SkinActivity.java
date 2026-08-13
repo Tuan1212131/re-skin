@@ -109,23 +109,62 @@ public class SkinActivity extends AppCompatActivity {
             if (a != 0) {
                 baseA = a;
                 addrInput.setText(String.format("%08X", a));
-                addrInfo.setText("自动定位成功: A=" + Long.toHexString(a) + " (结构验证通过)");
-                Toast.makeText(this, "自动定位成功", Toast.LENGTH_SHORT).show();
-            } else {
-                // 失败: 显示候选列表(带 地址/脸值/身值), 供手动选择
-                int count = ipc.scanValue(head);
-                StringBuilder sb = new StringBuilder("未命中结构验证. 头ID候选" + count + "个(前15):\n");
-                for (int i = 0; i < Math.min(count, 15); i++) {
-                    long addr = ipc.getScanResult(i);
-                    long f8 = ipc.readInt(addr + 8);
-                    long f14 = ipc.readInt(addr + 0x14);
-                    sb.append(String.format("%08X 脸=%d 身=%d\n", addr, f8, f14));
+                addrInfo.setText("自动定位: A=" + Long.toHexString(a));
+                Toast.makeText(this, "已定位(前导/脸身验证)", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 显示所有"前导特征匹配"候选, 用户选择(多角色/缓存有相同特征, 需选当前角色的)
+            int count = ipc.scanValue(head);
+            java.util.List<Long> candidates = new java.util.ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                long cand = ipc.getScanResult(i);
+                // 前导特征: cand-0xC=16, cand-8=0, cand-4=head-1
+                long mC = ipc.readInt(cand - 0xC);
+                long m8 = ipc.readInt(cand - 8);
+                long m4 = ipc.readInt(cand - 4);
+                if (mC == 16 && m8 == 0 && m4 == head - 1) {
+                    candidates.add(cand);
                 }
-                addrInfo.setText(sb.toString());
+            }
+            if (candidates.isEmpty()) {
+                addrInfo.setText("无前导特征匹配. 头ID候选" + count + "个(可能需绑定进程)");
+            } else if (candidates.size() == 1) {
+                long a2 = candidates.get(0);
+                baseA = a2;
+                addrInput.setText(String.format("%08X", a2));
+                addrInfo.setText("前导匹配(唯一): A=" + Long.toHexString(a2));
+            } else {
+                // 多个候选: 显示Dialog让用户选
+                showCandidateDialog(candidates, head);
             }
         } catch (RemoteException e) {
             addrInfo.setText("自动定位异常: " + e.getMessage());
         }
+    }
+
+    private void showCandidateDialog(final java.util.List<Long> candidates, final int head) {
+        IMutual ipc = IPCService.getIPC();
+        String[] items = new String[candidates.size()];
+        for (int i = 0; i < candidates.size(); i++) {
+            long c = candidates.get(i);
+            long m4 = 0, a8 = 0, a14 = 0;
+            try {
+                m4 = ipc.readInt(c - 4);
+                a8 = ipc.readInt(c + 8);
+                a14 = ipc.readInt(c + 0x14);
+            } catch (RemoteException ignored) {}
+            items[i] = String.format("%08X\n前导%d 脸=%d 身=%d", c, m4, a8, a14);
+        }
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("找到" + candidates.size() + "个匹配, 选当前角色的")
+                .setItems(items, (d, which) -> {
+                    long sel = candidates.get(which);
+                    baseA = sel;
+                    addrInput.setText(String.format("%08X", sel));
+                    addrInfo.setText("已选: A=" + Long.toHexString(sel) + " (若改皮肤无反应, 换其他候选)");
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     private int parseId(EditText et, String name) {

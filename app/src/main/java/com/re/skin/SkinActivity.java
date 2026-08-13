@@ -24,6 +24,7 @@ public class SkinActivity extends AppCompatActivity {
     private SkinData.Employee employee;
     private long baseA;
     private EditText headInput, faceInput, bodyInput;
+    private int locateRetry = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +109,7 @@ public class SkinActivity extends AppCompatActivity {
             long a = ipc.findSkinBase(head, face, body);
             if (a != 0) {
                 baseA = a;
+                locateRetry = 0;
                 addrInput.setText(String.format("%08X", a));
                 addrInfo.setText("自动定位: A=" + Long.toHexString(a));
                 Toast.makeText(this, "已定位(前导/脸身验证)", Toast.LENGTH_SHORT).show();
@@ -127,7 +129,15 @@ public class SkinActivity extends AppCompatActivity {
                 }
             }
             if (candidates.isEmpty()) {
-                addrInfo.setText("无前导特征匹配. 头ID候选" + count + "个(可能需绑定进程)");
+                // 可能游戏数据未就绪, 自动重试 (最多3次)
+                if (locateRetry < 3) {
+                    locateRetry++;
+                    addrInfo.setText("未找到(" + locateRetry + "/3), 2秒后自动重试(游戏数据加载中)...");
+                    addrInput.postDelayed(this::doAutoLocate, 2000);
+                } else {
+                    locateRetry = 0;
+                    addrInfo.setText("重试3次未找到. 请确认: 游戏已进对局/已绑定进程/头ID正确");
+                }
             } else if (candidates.size() == 1) {
                 long a2 = candidates.get(0);
                 baseA = a2;

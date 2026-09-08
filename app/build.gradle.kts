@@ -10,25 +10,30 @@ android {
         applicationId = "com.re.skin"
         minSdk = 23
         targetSdk = 28
-        versionCode = 1
-        versionName = "1.0"
-
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
+        versionCode = 2
+        versionName = "1.1"
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++17"
+                arguments += listOf("-DANDROID_STL=c++_static")
+            }
         }
     }
 
-    sourceSets["main"].jniLibs.srcDirs("src/main/jniLibs")
+    buildTypes {
+        release { isMinifyEnabled = false }
+    }
+
+    externalNativeBuild {
+        cmake { path = file("src/main/cpp/CMakeLists.txt"); version = "3.22.1" }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-
+    ndkVersion = "27.2.12479018"
     buildFeatures { aidl = true }
 }
 

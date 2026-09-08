@@ -40,6 +40,10 @@
                 android:background="@drawable/bg_btn_primary" android:textColor="#FFFFFF"
                 android:paddingLeft="8dp" android:paddingRight="8dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:text="自动定位" android:minWidth="0dp" android:minHeight="0dp"
                 android:textSize="13sp" android:layout_marginStart="6dp"/>
+            <Button android:id="@+id/btn_deep" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_ghost" android:textColor="#FFD166"
+                android:paddingLeft="8dp" android:paddingRight="8dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:text="深度(v6)" android:minWidth="0dp" android:minHeight="0dp"
+                android:textSize="13sp" android:layout_marginStart="6dp"/>
         </LinearLayout>
         <TextView android:id="@+id/addr_info" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:textColor="@color/muted" android:textSize="12sp" android:layout_marginTop="6dp"

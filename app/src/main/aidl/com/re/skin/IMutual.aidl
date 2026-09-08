@@ -14,6 +14,10 @@ interface IMutual {
     long readInt(long addr);
     /** 自动定位装扮基址A: 搜头ID+结构验证(脸A+8,身A+0x14) */
     long findSkinBase(int headId, int faceId, int bodyId);
+    /** v6深度: 搜"身"c2并验证密集签名(-12=4,-8=0,-4=c1,0=c2,+4=c3,+8=0); 返回身地址 */
+    long deepLocate(int c1, int c2, int c3);
+    /** v6深度写: 身-4=c1, 身=c2, 身+4=c3 */
+    boolean applyDeep(long center, int c1, int c2, int c3);
     /** 重新绑定(切换游戏) */
     void detach();
 }

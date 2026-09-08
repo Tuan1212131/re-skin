@@ -23,6 +23,7 @@ public class SkinActivity extends AppCompatActivity {
     private TextView addrInfo;
     private SkinData.Employee employee;
     private long baseA;
+    private long deepA;   // v6 深度定位的身地址
     private EditText headInput;
     private int locateRetry = 0;
 
@@ -56,6 +57,8 @@ public class SkinActivity extends AppCompatActivity {
 
         Button autoBtn = findViewById(R.id.btn_auto);
         autoBtn.setOnClickListener(v -> doAutoLocate());
+        Button deepBtn = findViewById(R.id.btn_deep);
+        deepBtn.setOnClickListener(v -> doDeepLocate());
 
         // 皮肤列表
         ListView list = findViewById(R.id.skin_list);
@@ -104,6 +107,22 @@ public class SkinActivity extends AppCompatActivity {
         } catch (RemoteException e) {
             addrInfo.setText("搜索失败: " + e.getMessage());
         }
+    }
+
+    // v6 深度定位: 用本员工"原皮"三值(脸/身/部件3)按密集签名定位; 命中后应用走密集写
+    private void doDeepLocate() {
+        IMutual ipc = IPCService.getIPC();
+        if (ipc == null) { Toast.makeText(this, "root服务未连接", Toast.LENGTH_SHORT).show(); return; }
+        if (employee == null || employee.skins.length == 0) return;
+        SkinData.Skin base = employee.skins[0];   // 原皮(当前状态应为其基础三值)
+        try {
+            long c = ipc.deepLocate(base.hasHead()?base.head:-1, base.hasFace()?base.face:-1, base.hasBody()?base.body:-1);
+            if (c <= 0) { addrInfo.setText("深度定位未命中(" + base.head + "," + base.face + "," + base.body + "), 请确认游戏已进对局且本角色为" + employee.name); return; }
+            deepA = c; baseA = c;
+            addrInput.setText(String.format("%08X", c));
+            addrInfo.setText("深度(v6)命中 身@" + Long.toHexString(c) + " (" + base.head + "," + base.face + "," + base.body + ")");
+            Toast.makeText(this, "深度定位成功", Toast.LENGTH_SHORT).show();
+        } catch (RemoteException e) { addrInfo.setText("深度定位异常: " + e.getMessage()); }
     }
 
     private void doAutoLocate() {
@@ -203,6 +222,7 @@ public class SkinActivity extends AppCompatActivity {
             int body = skin.hasBody() ? skin.body : (int)ipc.readInt(a + 0x14);
 
             boolean ok = ipc.applySkin(a, head, face, body);
+            if (ok && deepA != 0) { ipc.applyDeep(deepA, skin.head, skin.face, skin.body); }
             Toast.makeText(this, (ok ? "已应用: " : "应用失败: ") + skin.name, Toast.LENGTH_LONG).show();
         } catch (RemoteException e) {
             Toast.makeText(this, "应用失败: " + e.getMessage(), Toast.LENGTH_LONG).show();

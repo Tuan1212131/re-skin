@@ -50,6 +50,16 @@ Java_com_re_skin_NativeBridge_findSkinBase(JNIEnv*, jclass, jint head, jint face
     return (jlong)skin::findSkinBase((int)head, (int)face, (int)body);
 }
 
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_re_skin_NativeBridge_deepLocate(JNIEnv*, jclass, jint c1, jint c2, jint c3) {
+    return (jlong)skin::findDense((int)c1, (int)c2, (int)c3);
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_re_skin_NativeBridge_applyDeep(JNIEnv*, jclass, jlong center, jint c1, jint c2, jint c3) {
+    return skin::applyDense((uintptr_t)center, (int)c1, (int)c2, (int)c3) ? JNI_TRUE : JNI_FALSE;
+}
+
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM*, void*) {
     return JNI_VERSION_1_6;
 }

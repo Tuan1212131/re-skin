@@ -22,6 +22,12 @@ public class AIDLService extends RootService {
             @Override public long findSkinBase(int h, int f, int b) {
                 return NativeBridge.findSkinBase(h, f, b);
             }
+            @Override public long deepLocate(int c1, int c2, int c3) {
+                return NativeBridge.deepLocate(c1, c2, c3);
+            }
+            @Override public boolean applyDeep(long center, int c1, int c2, int c3) {
+                return NativeBridge.applyDeep(center, c1, c2, c3);
+            }
             @Override public void detach() { NativeBridge.detach(); }
         };
     }

@@ -43,6 +43,10 @@ public class SkinActivity extends AppCompatActivity {
         addrInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         addrInfo = findViewById(R.id.addr_info);
         headInput = findViewById(R.id.head_input);
+        // 进入该员工页: 自动预填"原皮头ID"(如 小黄=20000002 / 临云=20001401), 供自动定位用本员工脚本
+        if (employee != null && employee.skins.length > 0 && employee.skins[0].hasHead()) {
+            headInput.setText(String.valueOf(employee.skins[0].head));
+        }
 
         Button bindBtn = findViewById(R.id.btn_attach);
         bindBtn.setOnClickListener(v -> doAttach());

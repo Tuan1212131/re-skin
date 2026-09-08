@@ -12,13 +12,7 @@ android {
         targetSdk = 28
         versionCode = 1
         versionName = "1.0"
-        externalNativeBuild {
-            cmake {
-                cppFlags += "-std=c++17"
-                // 静态STL: 避免root进程依赖libc++_shared
-                arguments += listOf("-DANDROID_STL=c++_static")
-            }
-        }
+
     }
 
     buildTypes {
@@ -27,19 +21,14 @@ android {
         }
     }
 
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
+    sourceSets["main"].jniLibs.srcDirs("src/main/jniLibs")
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    ndkVersion = "27.2.12479018"
+
     buildFeatures { aidl = true }
 }
 

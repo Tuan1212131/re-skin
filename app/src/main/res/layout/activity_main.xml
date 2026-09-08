@@ -1,28 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="12dp">
-
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="超自然行动组 皮肤工具" android:textSize="18sp" android:textStyle="bold" />
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="选员工 → 选皮肤 → 定位地址A → 应用 (头=A 脸=A+4 身=A+8)"
-        android:textSize="12sp" android:textColor="#888888" android:layout_marginBottom="12dp" />
+    android:orientation="vertical" android:background="@color/bg"
+    android:padding="16dp">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <EditText android:id="@+id/pkg_input" android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="com.pi.czrxdfirst" android:hint="游戏包名" />
-        <Button android:id="@+id/btn_bind" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="连接" />
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:background="@drawable/bg_title" android:padding="16dp"
+        android:layout_marginBottom="14dp">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="皮肤管理器" android:textColor="#FFFFFF"
+            android:textSize="22sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/status_text" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:background="@drawable/bg_chip"
+            android:padding="6dp 10dp" android:text="未连接" android:textColor="#FFD166"
+            android:textSize="12sp"/>
     </LinearLayout>
 
-    <TextView android:id="@+id/status_text" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="root服务: 未连接" android:textColor="#E94560" android:layout_marginTop="6dp"
-        android:layout_marginBottom="12dp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:background="@drawable/bg_card" android:padding="12dp"
+        android:layout_marginBottom="6dp">
+        <EditText android:id="@+id/pkg_input" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:background="@drawable/bg_field" android:padding="10dp"
+            android:textColor="@color/text" android:hint="游戏包名" android:hintTextColor="@color/muted"
+            android:text="com.pi.czrxdfirst" android:textSize="13sp"/>
+        <Button android:id="@+id/btn_bind" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_btn_primary" android:textColor="#FFFFFF"
+            android:padding="8dp 18dp" android:text="绑定" android:minWidth="0dp" android:minHeight="0dp"
+            android:textSize="14sp"/>
+    </LinearLayout>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="选择员工:" android:textSize="14sp" />
+        android:text="选择角色" android:textColor="@color/accent2"
+        android:textSize="14sp" android:textStyle="bold" android:padding="4dp 2dp 8dp"/>
+
     <ListView android:id="@+id/emp_list" android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" android:divider="@android:color/transparent"
+        android:dividerHeight="8dp" android:paddingBottom="8dp"/>
 </LinearLayout>

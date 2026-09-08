@@ -1,36 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="12dp">
-
-    <TextView android:id="@+id/skin_title" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textSize="18sp" android:textStyle="bold" />
+    android:orientation="vertical" android:background="@color/bg"
+    android:padding="16dp">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginTop="8dp">
-        <EditText android:id="@+id/addr_input" android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:hint="地址A(hex) 或 当前头ID" />
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+        <TextView android:id="@+id/skin_title" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:background="@drawable/bg_title" android:padding="6dp 14dp"
+            android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"/>
         <Button android:id="@+id/btn_attach" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="绑定游戏" />
-        <Button android:id="@+id/btn_scan" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="搜索地址" />
+            android:background="@drawable/bg_btn_ghost" android:textColor="#FFFFFF"
+            android:padding="8dp 16dp" android:text="绑定游戏" android:minWidth="0dp" android:minHeight="0dp"
+            android:textSize="13sp"/>
     </LinearLayout>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginTop="4dp">
-        <EditText android:id="@+id/head_input" android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:hint="当前角色头ID(必填)" android:text="20000002" />
-        <Button android:id="@+id/btn_auto" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="自动定位" />
+        android:orientation="vertical" android:background="@drawable/bg_card"
+        android:padding="12dp" android:layout_marginBottom="8dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <EditText android:id="@+id/addr_input" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:background="@drawable/bg_field" android:padding="9dp"
+                android:textColor="@color/text" android:hint="地址A(hex)" android:hintTextColor="@color/muted"
+                android:textSize="13sp"/>
+            <Button android:id="@+id/btn_scan" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_ghost" android:textColor="#FFFFFF"
+                android:padding="8dp 12dp" android:text="搜索" android:minWidth="0dp" android:minHeight="0dp"
+                android:textSize="13sp" android:layout_marginStart="6dp"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="6dp">
+            <EditText android:id="@+id/head_input" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:background="@drawable/bg_field" android:padding="9dp"
+                android:textColor="@color/text" android:hint="头ID" android:hintTextColor="@color/muted"
+                android:textSize="13sp"/>
+            <Button android:id="@+id/btn_auto" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_primary" android:textColor="#FFFFFF"
+                android:padding="8dp 12dp" android:text="自动定位" android:minWidth="0dp" android:minHeight="0dp"
+                android:textSize="13sp" android:layout_marginStart="6dp"/>
+        </LinearLayout>
+        <TextView android:id="@+id/addr_info" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/muted" android:textSize="12sp" android:layout_marginTop="6dp"
+            android:text="点自动定位(自动填当前角色头ID)" />
     </LinearLayout>
-
-    <TextView android:id="@+id/addr_info" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="提示: 填当前角色头ID点自动定位(前导特征16/0/头ID-1), 多候选会弹窗选"
-        android:textSize="12sp" android:textColor="#888888" android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp" />
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="选择皮肤 (点击应用):" android:textSize="14sp" />
+        android:text="选择皮肤 · 点击应用" android:textColor="@color/accent2"
+        android:textSize="14sp" android:textStyle="bold" android:padding="4dp 2dp 8dp"/>
+
     <ListView android:id="@+id/skin_list" android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" android:divider="@android:color/transparent"
+        android:dividerHeight="6dp" android:paddingBottom="8dp"/>
 </LinearLayout>

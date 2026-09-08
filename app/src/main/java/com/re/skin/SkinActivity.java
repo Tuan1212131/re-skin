@@ -59,11 +59,17 @@ public class SkinActivity extends AppCompatActivity {
 
         // 皮肤列表
         ListView list = findViewById(R.id.skin_list);
-        ArrayList<String> names = new ArrayList<>();
-        for (SkinData.Skin s : employee.skins) names.add(s.name);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, names);
-        list.setAdapter(adapter);
+        final SkinData.Skin[] skins = employee.skins;
+        list.setAdapter(new android.widget.BaseAdapter() {
+            public int getCount(){ return skins.length; }
+            public Object getItem(int p){ return skins[p]; }
+            public long getItemId(int p){ return p; }
+            public android.view.View getView(int p, android.view.View v, android.view.ViewGroup g){
+                if (v == null) v = getLayoutInflater().inflate(R.layout.item_skin, g, false);
+                ((android.widget.TextView)v.findViewById(R.id.skin_name)).setText(skins[p].name);
+                return v;
+            }
+        });
         list.setOnItemClickListener((p, v, pos, id) -> applySkin(employee.skins[pos]));
     }
 

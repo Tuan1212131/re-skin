@@ -206,4 +206,41 @@ uintptr_t findSkinBase(int headId, int faceId, int bodyId) {
     return 0;
 }
 
+
+// ============ v6 深度定位/写入 (密集块: 身为中心) ============
+uintptr_t findDense(int c1, int c2, int c3) {
+    if (g_memFd < 0) return 0;
+    char mapPath[64]; snprintf(mapPath, sizeof mapPath, "/proc/%ld/maps", g_pid);
+    FILE* f = fopen(mapPath, "r"); if (!f) return 0;
+    char line[512]; unsigned char buf[4096];
+    while (fgets(line, sizeof line, f)) {
+        unsigned long start, end; char perms[8]="";
+        if (sscanf(line, "%lx-%lx %7s", &start, &end, perms) != 3) continue;
+        if (!strchr(perms,'r')) continue;
+        if (strstr(line,"vmem")||strstr(line,"vsyscall")) continue;
+        if (strstr(line,"/system/")||strstr(line,"/apex/")||strstr(line,"/vendor/")) continue;
+        for (unsigned long addr=start; addr<end; addr+=4096) {
+            size_t len=(end-addr<4096)?(size_t)(end-addr):4096;
+            if (pread(g_memFd, buf, len, (off_t)addr)!=(ssize_t)len) continue;
+            for (size_t i=0;i+4<=len;i++) { int v; memcpy(&v,buf+i,4);
+                if (v==c2) { uintptr_t cand=addr+i; int m12=0,m8=0,m4=0,p3=0,p8=0;
+                    if (memRead(cand-12,&m12,4)&&memRead(cand-8,&m8,4)&&memRead(cand-4,&m4,4)
+                        &&memRead(cand+4,&p3,4)&&memRead(cand+8,&p8,4)
+                        && m12==4 && m8==0 && m4==c1 && p3==c3 && p8==0) {
+                        LOGI("findDense: 命中 center=%p (%d,%d,%d)", (void*)cand,c1,c2,c3);
+                        fclose(f); return cand;
+                    }
+                }
+            }
+        }
+    }
+    fclose(f); LOGE("findDense: 未命中 (%d,%d,%d)", c1,c2,c3); return 0;
+}
+bool applyDense(uintptr_t center, int c1, int c2, int c3){
+    if (g_memFd<0 || center==0) return false;
+    bool ok = memWrite(center-4,&c1,4) && memWrite(center,&c2,4) && memWrite(center+4,&c3,4);
+    LOGI("applyDense center=%p (%d,%d,%d) -> %s",(void*)center,c1,c2,c3,ok?"OK":"FAIL");
+    return ok;
+}
+
 } // namespace skin

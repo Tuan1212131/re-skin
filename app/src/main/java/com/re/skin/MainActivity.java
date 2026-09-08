@@ -34,11 +34,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         // 员工列表
         ListView list = findViewById(R.id.emp_list);
-        String[] names = new String[SkinData.EMPLOYEES.length];
-        for (int i = 0; i < names.length; i++) names[i] = SkinData.EMPLOYEES[i].name;
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, names);
-        list.setAdapter(adapter);
+        final SkinData.Employee[] emps = SkinData.EMPLOYEES;
+        list.setAdapter(new android.widget.BaseAdapter() {
+            public int getCount(){ return emps.length; }
+            public Object getItem(int p){ return emps[p]; }
+            public long getItemId(int p){ return p; }
+            public android.view.View getView(int p, android.view.View v, android.view.ViewGroup g){
+                if (v == null) v = getLayoutInflater().inflate(R.layout.item_emp, g, false);
+                ((android.widget.TextView)v.findViewById(R.id.emp_avatar)).setText(emps[p].name.substring(0,1));
+                ((android.widget.TextView)v.findViewById(R.id.emp_name)).setText(emps[p].name);
+                ((android.widget.TextView)v.findViewById(R.id.emp_count)).setText(emps[p].skins.length + " 款");
+                return v;
+            }
+        });
         list.setOnItemClickListener((p, v, pos, id) -> {
             Intent it = new Intent(this, SkinActivity.class);
             it.putExtra("emp", pos);
